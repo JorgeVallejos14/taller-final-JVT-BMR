@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFetch } from './hooks/useFetch';
+import SearchBar from './components/SearchBar';
 import PokemonList from './components/PokemonList';
 import './App.css';
 
@@ -7,9 +8,8 @@ const API_URL = 'https://pokeapi.co/api/v2/pokemon?limit=151';
 
 function App() {
   const { data, loading, error } = useFetch(API_URL);
+  const [busqueda, setBusqueda] = useState('');
 
-  // Transformamos la respuesta de la API en algo simple de usar,
-  // agregando el id y la imagen (sprite oficial) de cada pokemon.
   const pokemons = useMemo(() => {
     if (!data) return [];
     return data.results.map((p) => {
@@ -23,6 +23,12 @@ function App() {
     });
   }, [data]);
 
+  const pokemonsFiltrados = useMemo(() => {
+    return pokemons.filter((p) =>
+      p.name.toLowerCase().includes(busqueda.toLowerCase())
+    );
+  }, [pokemons, busqueda]);
+
   return (
     <div className="app">
       <header className="app-header">
@@ -31,9 +37,11 @@ function App() {
       </header>
 
       <main className="app-main">
+        <SearchBar value={busqueda} onChange={setBusqueda} />
+
         {loading && <p className="status">Cargando pokémon...</p>}
         {error && <p className="status error">Ocurrió un error: {error}</p>}
-        {!loading && !error && <PokemonList pokemons={pokemons} />}
+        {!loading && !error && <PokemonList pokemons={pokemonsFiltrados} />}
       </main>
     </div>
   );
