@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useFetch } from './hooks/useFetch';
 import SearchBar from './components/SearchBar';
 import PokemonList from './components/PokemonList';
+import FavoritesPanel from './components/FavoritesPanel';
 import './App.css';
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon?limit=151';
@@ -9,6 +10,7 @@ const API_URL = 'https://pokeapi.co/api/v2/pokemon?limit=151';
 function App() {
   const { data, loading, error } = useFetch(API_URL);
   const [busqueda, setBusqueda] = useState('');
+  const [favoritos, setFavoritos] = useState([]);
 
   const pokemons = useMemo(() => {
     if (!data) return [];
@@ -29,6 +31,15 @@ function App() {
     );
   }, [pokemons, busqueda]);
 
+  function toggleFavorito(id) {
+    setFavoritos((prev) => {
+      const yaEsta = prev.some((f) => f.id === id);
+      if (yaEsta) return prev.filter((f) => f.id !== id);
+      const pokemon = pokemons.find((p) => p.id === id);
+      return pokemon ? [...prev, pokemon] : prev;
+    });
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -36,13 +47,26 @@ function App() {
         <p className="team">Hecho por: Jorge Vallejos y Bastian Maradiaga</p>
       </header>
 
-      <main className="app-main">
-        <SearchBar value={busqueda} onChange={setBusqueda} />
+      <div className="app-body">
+        <main className="app-main">
+          <SearchBar value={busqueda} onChange={setBusqueda} />
 
-        {loading && <p className="status">Cargando pokémon...</p>}
-        {error && <p className="status error">Ocurrió un error: {error}</p>}
-        {!loading && !error && <PokemonList pokemons={pokemonsFiltrados} />}
-      </main>
+          {loading && <p className="status">Cargando pokémon...</p>}
+          {error && <p className="status error">Ocurrió un error: {error}</p>}
+          {!loading && !error && (
+            <PokemonList
+              pokemons={pokemonsFiltrados}
+              favoritos={favoritos}
+              onToggleFavorito={toggleFavorito}
+            />
+          )}
+        </main>
+
+        <FavoritesPanel
+          favoritos={favoritos}
+          onQuitar={toggleFavorito}
+        />
+      </div>
     </div>
   );
 }

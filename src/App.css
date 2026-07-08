@@ -52,3 +52,51 @@ body {
   border-radius: 8px;
   margin-bottom: 1.25rem;
 }
+
+.app-body {
+  display: flex;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  align-items: flex-start;
+}
+
+.app-main { flex: 1; min-width: 0; }
+
+.panel {
+  width: 260px;
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+.panel-list { list-style: none; padding: 0; margin: 0; }
+.panel-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #eee;
+}
+.panel-list img { width: 32px; height: 32px; object-fit: contain; }
+.panel-list span { flex: 1; text-transform: capitalize; font-size: 0.9rem; }
+.panel-list button {
+  border: none; background: none; cursor: pointer; color: #b00020; font-size: 1rem;
+}
+
+.card { position: relative; }
+.fav-btn {
+  position: absolute;
+  top: 4px; right: 4px;
+  border: none;
+  background: rgba(255,255,255,0.85);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #ccc;
+}
+.fav-btn.active { color: #f5b301; }
