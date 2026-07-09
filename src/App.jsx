@@ -5,15 +5,15 @@ import PokemonList from './components/PokemonList';
 import FavoritesPanel from './components/FavoritesPanel';
 import Stats from './components/Stats';
 import './App.css';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon?limit=151';
 
 function App() {
   const { data, loading, error } = useFetch(API_URL);
   const [busqueda, setBusqueda] = useState('');
-  const [favoritos, setFavoritos] = useState([]);
-  const [bloqueados, setBloqueados] = useState([]);
-
+  const [favoritos, setFavoritos] = useLocalStorage('pokemon-favoritos', []);
+  const [bloqueados, setBloqueados] = useLocalStorage('pokemon-bloqueados', []);
   const pokemons = useMemo(() => {
     if (!data) return [];
     return data.results.map((p) => {
