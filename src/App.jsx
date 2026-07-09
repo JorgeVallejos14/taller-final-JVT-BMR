@@ -3,6 +3,7 @@ import { useFetch } from './hooks/useFetch';
 import SearchBar from './components/SearchBar';
 import PokemonList from './components/PokemonList';
 import FavoritesPanel from './components/FavoritesPanel';
+import Stats from './components/Stats';
 import './App.css';
 
 const API_URL = 'https://pokeapi.co/api/v2/pokemon?limit=151';
@@ -11,6 +12,7 @@ function App() {
   const { data, loading, error } = useFetch(API_URL);
   const [busqueda, setBusqueda] = useState('');
   const [favoritos, setFavoritos] = useState([]);
+  const [bloqueados, setBloqueados] = useState([]);
 
   const pokemons = useMemo(() => {
     if (!data) return [];
@@ -25,11 +27,11 @@ function App() {
     });
   }, [data]);
 
-  const pokemonsFiltrados = useMemo(() => {
-    return pokemons.filter((p) =>
-      p.name.toLowerCase().includes(busqueda.toLowerCase())
-    );
-  }, [pokemons, busqueda]);
+  const pokemonsVisibles = useMemo(() => {
+    return pokemons
+      .filter((p) => !bloqueados.some((b) => b.id === p.id))
+      .filter((p) => p.name.toLowerCase().includes(busqueda.toLowerCase()));
+  }, [pokemons, busqueda, bloqueados]);
 
   function toggleFavorito(id) {
     setFavoritos((prev) => {
@@ -40,32 +42,64 @@ function App() {
     });
   }
 
+  function bloquear(id) {
+    setBloqueados((prev) => {
+      if (prev.some((b) => b.id === id)) return prev;
+      const pokemon = pokemons.find((p) => p.id === id);
+      return pokemon ? [...prev, pokemon] : prev;
+    });
+    // Si estaba en favoritos, se retira automáticamente
+    setFavoritos((prev) => prev.filter((f) => f.id !== id));
+  }
+
+  function desbloquear(id) {
+    setBloqueados((prev) => prev.filter((b) => b.id !== id));
+  }
+
   return (
     <div className="app">
       <header className="app-header">
         <h1>🔴 PokéExplorer</h1>
-        <p className="team">Hecho por: Jorge Vallejos y Bastian Maradiaga</p>
+        <p className="team">Hecho por: [Jorge Vallejos] y [Bastian Madariaga]</p>
       </header>
 
       <div className="app-body">
         <main className="app-main">
           <SearchBar value={busqueda} onChange={setBusqueda} />
+          <Stats
+            total={pokemons.length}
+            favoritosCount={favoritos.length}
+            bloqueadosCount={bloqueados.length}
+          />
 
           {loading && <p className="status">Cargando pokémon...</p>}
           {error && <p className="status error">Ocurrió un error: {error}</p>}
           {!loading && !error && (
             <PokemonList
-              pokemons={pokemonsFiltrados}
+              pokemons={pokemonsVisibles}
               favoritos={favoritos}
               onToggleFavorito={toggleFavorito}
+              onBloquear={bloquear}
             />
+          )}
+
+          {bloqueados.length > 0 && (
+            <div className="panel blocked-panel">
+              <h2>🚫 Bloqueados ({bloqueados.length})</h2>
+              <ul className="panel-list">
+                {bloqueados.map((p) => (
+                  <li key={p.id}>
+                    <img src={p.image} alt={p.name} />
+                    <span>{p.name}</span>
+                    <button onClick={() => desbloquear(p.id)}>Desbloquear</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </main>
 
-        <FavoritesPanel
-          favoritos={favoritos}
-          onQuitar={toggleFavorito}
-        />
+        <FavoritesPanel favoritos={favoritos} onQuitar={toggleFavorito} />
       </div>
     </div>
   );

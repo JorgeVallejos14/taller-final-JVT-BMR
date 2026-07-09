@@ -1,6 +1,6 @@
 import PokemonCard from './PokemonCard';
 
-function PokemonList({ pokemons, favoritos, onToggleFavorito }) {
+function PokemonList({ pokemons, favoritos, onToggleFavorito, onBloquear }) {
   if (pokemons.length === 0) {
     return <p className="empty">No hay resultados.</p>;
   }
@@ -13,6 +13,7 @@ function PokemonList({ pokemons, favoritos, onToggleFavorito }) {
           pokemon={p}
           esFavorito={favoritos.some((f) => f.id === p.id)}
           onToggleFavorito={onToggleFavorito}
+          onBloquear={onBloquear}
         />
       ))}
     </div>
