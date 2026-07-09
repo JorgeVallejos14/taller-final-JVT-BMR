@@ -17,7 +17,15 @@ function PokemonCard({ pokemon, esFavorito, onToggleFavorito, onBloquear }) {
           🚫
         </button>
       </div>
-      <img src={pokemon.image} alt={pokemon.name} loading="lazy" />
+      <img
+        src={pokemon.image}
+        alt={pokemon.name}
+        loading="lazy"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`;
+          }}
+      />
       <p className="card-name">{pokemon.name}</p>
     </div>
   );
